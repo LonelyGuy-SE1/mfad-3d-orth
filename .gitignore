@@ -29,3 +29,4 @@ venv/
 *.trace.json
 trace_*.json
 *.png
+*.html
