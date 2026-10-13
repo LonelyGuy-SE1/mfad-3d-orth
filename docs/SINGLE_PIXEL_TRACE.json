@@ -1,0 +1,346 @@
+{
+  "title": "Single-pixel matrix walkthrough",
+  "pixel": {
+    "x": 400,
+    "y": 280,
+    "width": 800,
+    "height": 450,
+    "u": 0.5012515644555695,
+    "v": 0.3775055679287305
+  },
+  "how_to_answer": "For each stage: what concept, why it is needed, what matrix result it produces",
+  "stages": [
+    {
+      "order": 1,
+      "stage": "matrix_representation",
+      "concept": "Matrix representation",
+      "purpose": "Images and meshes are matrices so linear-algebra ops apply",
+      "before": "Raw scene JSON + OBJ vertices",
+      "matrix": {
+        "image_channel_shape": [
+          450,
+          800
+        ],
+        "meaning": "Each of R,G,B is an HxW matrix; geometry vertices are 3xV"
+      },
+      "after": "Data ready for SVD / transforms / basis",
+      "outcome": "Everything downstream is linear algebra on these matrices"
+    },
+    {
+      "order": 2,
+      "stage": "basis_camera",
+      "concept": "Orthogonalization (Gram\u2013Schmidt)",
+      "purpose": "eye/look_at/up are not orthogonal; rays would skew without Q",
+      "inputs": {
+        "eye": [
+          0.15,
+          0.55,
+          2.5
+        ],
+        "look_at": [
+          0.0,
+          0.05,
+          -1.0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ]
+      },
+      "matrix_Q_columns_right_up_back": [
+        [
+          0.99908,
+          -0.00605,
+          0.04239
+        ],
+        [
+          0.0,
+          0.98997,
+          0.14129
+        ],
+        [
+          -0.04282,
+          -0.14116,
+          0.98906
+        ]
+      ],
+      "checks": {
+        "QtQ": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            -0.0
+          ],
+          [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        ],
+        "det": 1.0
+      },
+      "outcome": "Orthonormal camera frame; QtQ=I, det=+1"
+    },
+    {
+      "order": 3,
+      "stage": "projection_primary_ray",
+      "concept": "Projection / change of basis",
+      "purpose": "Turn pixel coords into a 3D world ray",
+      "ray_origin": [
+        0.15,
+        0.55,
+        2.5
+      ],
+      "ray_direction_world": [
+        -0.04007,
+        -0.22866,
+        -0.97268
+      ],
+      "formula": "dir = (2u-1)ah\u00b7right + (2v-1)h\u00b7up - back",
+      "outcome": "Primary ray for this pixel"
+    },
+    {
+      "order": 4,
+      "stage": "intersection",
+      "concept": "Solving linear systems / quadratics",
+      "purpose": "Find where the ray hits geometry",
+      "examples": {
+        "plane": {
+          "equation": "n\u00b7(o+td)=d",
+          "t": 4.591954833480306,
+          "hit_point": [
+            -0.03401,
+            -0.5,
+            -1.96651
+          ]
+        },
+        "triangle_Moller_Trumbore": {
+          "system": "[e1 e2 -dir] [\u03b2 \u03b3 t]^T = o - v0",
+          "note": "3x3 solve via Cramer's rule / determinants"
+        },
+        "ellipsoid": {
+          "implicit": "x^T A x = 1",
+          "A": [
+            [
+              2.64815,
+              0.37009,
+              0.66217
+            ],
+            [
+              0.37009,
+              0.98569,
+              0.14075
+            ],
+            [
+              0.66217,
+              0.14075,
+              3.64005
+            ]
+          ],
+          "note": "Ray mapped by M^-1 then unit-sphere quadratic"
+        }
+      },
+      "outcome": "Hit point + normal for shading"
+    },
+    {
+      "order": 5,
+      "stage": "basis_bounce",
+      "concept": "Orthogonalization (Duff local frame)",
+      "purpose": "Sample diffuse bounce directions in a local frame where normal is +Z",
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "Q_local_columns_T_B_N": [
+        [
+          1.0,
+          -0.0,
+          0.0
+        ],
+        [
+          -0.0,
+          0.0,
+          1.0
+        ],
+        [
+          -0.0,
+          -1.0,
+          0.0
+        ]
+      ],
+      "checks": {
+        "QtQ": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "det": 1.0
+      },
+      "sample_local": [
+        0.20092,
+        0.10046,
+        0.97444
+      ],
+      "sample_world": [
+        0.20092,
+        0.97444,
+        -0.10046
+      ],
+      "formula": "v_world = Q v_local",
+      "outcome": "Unbiased cosine-weighted bounce in world space"
+    },
+    {
+      "order": 6,
+      "stage": "eigen_ellipsoid",
+      "concept": "Eigenvalues & eigenvectors / diagonalization",
+      "purpose": "Ellipsoid shape matrix A encodes axes and radii",
+      "A": [
+        [
+          2.64815,
+          0.37009,
+          0.66217
+        ],
+        [
+          0.37009,
+          0.98569,
+          0.14075
+        ],
+        [
+          0.66217,
+          0.14075,
+          3.64005
+        ]
+      ],
+      "eigenvalues": [
+        0.90703,
+        2.36686,
+        4.0
+      ],
+      "eigenvectors_as_columns": [
+        [
+          0.20791,
+          -0.86365,
+          -0.45921
+        ],
+        [
+          -0.97815,
+          -0.18358,
+          -0.09761
+        ],
+        [
+          0.0,
+          0.46947,
+          -0.88295
+        ]
+      ],
+      "radii_recovered_1_over_sqrt_eig": [
+        1.05,
+        0.65,
+        0.5
+      ],
+      "outcome": "Axes = eigenvectors; radii = 1/\u221a\u03bb \u2014 used for ray\u2013ellipsoid hit normals via \u2207(x^TAx)"
+    },
+    {
+      "order": 7,
+      "stage": "path_integral_estimator",
+      "concept": "Monte Carlo approximation (links to least-squares / averaging)",
+      "purpose": "Rendering equation has no closed form; average N random paths",
+      "estimator": "L_pixel \u2248 (1/N) \u03a3 path_i radiance",
+      "N_spp_in_config": 320,
+      "outcome": "Noisy HDR image matrix (Monte Carlo noise in small singular values)"
+    },
+    {
+      "order": 8,
+      "stage": "svd_denoise",
+      "concept": "SVD + low-rank approx (optimal least-squares fit of given rank)",
+      "purpose": "Drop noisy singular-value tail; keep structure",
+      "toy_channel_A": [
+        [
+          0.12,
+          0.11,
+          0.1,
+          0.85
+        ],
+        [
+          0.11,
+          0.13,
+          0.12,
+          0.84
+        ],
+        [
+          0.1,
+          0.12,
+          0.11,
+          0.86
+        ],
+        [
+          0.55,
+          0.52,
+          0.58,
+          0.25
+        ]
+      ],
+      "singular_values": [
+        1.60641,
+        0.82155,
+        0.02001,
+        0.00089
+      ],
+      "A_rank2": [
+        [
+          0.10669,
+          0.11688,
+          0.10649,
+          0.84991
+        ],
+        [
+          0.1167,
+          0.12606,
+          0.11715,
+          0.84006
+        ],
+        [
+          0.10664,
+          0.11703,
+          0.10635,
+          0.86003
+        ],
+        [
+          0.54987,
+          0.52008,
+          0.58005,
+          0.25
+        ]
+      ],
+      "relative_frobenius_error": 0.011101383919409982,
+      "real_config": {
+        "image": [
+          450,
+          800
+        ],
+        "svd_rank": 140
+      },
+      "outcome": "Denoised image = best rank-r approximation (Eckart\u2013Young\u2013Mirsky)"
+    }
+  ],
+  "summary": "Matrix data \u2192 orthogonal frames \u2192 projections/intersections \u2192 eigen ellipsoid \u2192 Monte Carlo image matrix \u2192 SVD noise reduction"
+}

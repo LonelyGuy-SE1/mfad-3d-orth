@@ -75,6 +75,11 @@ public:
     std::vector<std::shared_ptr<Hittable>> area_lights;
     HittableList hittables;
 
+    // Optional environment (parsed from scene JSON "environment" block)
+    bool use_sky_gradient = false;
+    Eigen::Vector3f background_color{0.015f, 0.015f, 0.02f};
+    Eigen::Vector3f ambient_color{0.02f, 0.02f, 0.025f};
+
     /**
      * @brief Number of high-level geometric objects in the scene (meshes + quadrics).
      */
