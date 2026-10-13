@@ -126,6 +126,23 @@ Scene SceneLoader::load_from_json(const std::string& filepath, double aspect_rat
 
     Scene scene;
 
+    // 0. Optional environment (sky / background / ambient fill)
+    if (j.contains("environment") && j["environment"].is_object()) {
+        const auto& env = j["environment"];
+        scene.use_sky_gradient = env.value("sky_gradient", scene.use_sky_gradient);
+        if (env.contains("background") && env["background"].is_array() &&
+            env["background"].size() >= 3) {
+            scene.background_color =
+                Eigen::Vector3f(env["background"][0].get<float>(), env["background"][1].get<float>(),
+                                env["background"][2].get<float>());
+        }
+        if (env.contains("ambient") && env["ambient"].is_array() && env["ambient"].size() >= 3) {
+            scene.ambient_color = Eigen::Vector3f(env["ambient"][0].get<float>(),
+                                                  env["ambient"][1].get<float>(),
+                                                  env["ambient"][2].get<float>());
+        }
+    }
+
     // 1. Parse Camera
     if (j.contains("camera")) {
         const auto& cam_j = j["camera"];
@@ -488,7 +505,8 @@ Scene SceneLoader::load_from_json(const std::string& filepath, double aspect_rat
                                             light_j["color"][2].get<float>());
             }
             float radius = light_j.value("radius", 0.0f);
-            scene.point_lights.emplace_back(pos, intensity, radius);
+            bool direct_only = light_j.value("direct_only", false);
+            scene.point_lights.emplace_back(pos, intensity, radius, direct_only);
         }
     }
 

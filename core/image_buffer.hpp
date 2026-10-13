@@ -20,6 +20,7 @@ public:
     bool read_png(const std::string& filepath);
 
     bool write_hdr(const std::string& filepath) const;
+    bool read_hdr(const std::string& filepath);
 
     const std::vector<Eigen::Vector3f>& data() const { return pixels_; }
 

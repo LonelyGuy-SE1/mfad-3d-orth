@@ -48,10 +48,11 @@ Eigen::Vector3f PathTracer::trace_ray(const Ray& r, const Hittable& scene) const
         HitRecord rec;
         if (!scene.hit(cur_ray, 0.001f, 1e8f, rec)) {
             if (options_.use_sky_gradient) {
+                // Soft, presentation-friendly fill sky (muted so area lights stay dominant)
                 float dir_y = cur_ray.direction.y();
-                const Eigen::Vector3f sky_zenith(0.10f, 0.30f, 0.75f);
-                const Eigen::Vector3f sky_horizon(0.35f, 0.55f, 0.80f);
-                const Eigen::Vector3f ground_nadir(0.12f, 0.12f, 0.15f);
+                const Eigen::Vector3f sky_zenith(0.08f, 0.12f, 0.22f);
+                const Eigen::Vector3f sky_horizon(0.18f, 0.20f, 0.24f);
+                const Eigen::Vector3f ground_nadir(0.06f, 0.06f, 0.07f);
 
                 Eigen::Vector3f sky;
                 if (dir_y >= 0.0f) {
@@ -183,7 +184,9 @@ Eigen::Vector3f PathTracer::trace_ray(const Ray& r, const Hittable& scene) const
         }
     }
 
-    return L;
+    // Soft firefly clamp — keeps metal highlights from clipping to pure white
+    constexpr float kMaxRadiance = 5.0f;
+    return L.cwiseMin(Eigen::Vector3f::Constant(kMaxRadiance));
 }
 
 void PathTracer::render(const Camera& camera, const Hittable& scene, ImageBuffer& buffer,
