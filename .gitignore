@@ -29,6 +29,7 @@ venv/
 *.trace.json
 trace_*.json
 *.png
+!docs/gallery/*.png
 *.html
 output/
 

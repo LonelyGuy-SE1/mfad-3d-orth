@@ -5,8 +5,8 @@
   ],
   "output_dir": "output",
   "image": {
-    "width": 800,
-    "height": 450
+    "width": 1280,
+    "height": 720
   },
   "stages": {
     "raw": true,
@@ -14,10 +14,10 @@
     "path_traced": true,
     "denoise": true
   },
-  "direct_spp": 32,
-  "path_spp": 320,
-  "max_bounces": 12,
+  "direct_spp": 64,
+  "path_spp": 800,
+  "max_bounces": 16,
   "min_rr_bounces": 3,
-  "svd_rank": 140,
+  "svd_rank": 200,
   "exposure": 0.8
 }

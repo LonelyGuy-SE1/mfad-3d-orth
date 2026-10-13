@@ -1,56 +1,84 @@
-# Linear Algebra Path Tracer
+# Path Tracer
 
-a path tracer in c++ built out of linear algebra. camera frames, bounce sampling, reflections, bounding boxes, ellipsoid intersection, pose fitting and denoising all come from orthogonal matrices, projections, least squares, eigen stuff and svd. each one is its own module and each one logs what it computed.
+[![CI](https://github.com/LonelyGuy-SE1/path-tracer/actions/workflows/ci.yml/badge.svg)](https://github.com/LonelyGuy-SE1/path-tracer/actions/workflows/ci.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Eigen](https://img.shields.io/badge/Eigen-3.x-brightgreen.svg)](https://eigen.tuxfamily.org/)
+[![OpenMP](https://img.shields.io/badge/OpenMP-parallel-orange.svg)](https://www.openmp.org/)
 
-python sits around the renderer to look inside it. it reads the logs, shows every matrix and intermediate result, and checks each module against a separate numpy version.
+A Monte Carlo path tracer built from linear algebra modules — orthonormal frames, projections, eigen decompositions, and SVD — wired into a config-driven C++ render pipeline with Python inspection and NumPy reference checks.
 
-## what it renders
+<p align="center">
+  <img src="docs/gallery/final_demo.png" alt="Final demo — glass, metal, diffuse, caustics" width="90%"/>
+  <br/>
+  <em>Final demo — glass, metal, diffuse materials, softbox lighting, and caustics (1280×720 @ 800 spp)</em>
+</p>
 
-triangle meshes and quadrics (spheres, ellipsoids, planes) with diffuse, mirror and glass materials, lit by area lights and an environment. light is monte carlo path tracing with russian roulette, a bvh to keep it fast and openmp to use all the cores. the raw output is a noisy hdr image, which then goes through an svd based denoiser to get the final frame.
+<p align="center">
+  <img src="docs/gallery/cornell_box.png" alt="Cornell-style box with path-traced GI" width="90%"/>
+  <br/>
+  <em>Cornell-style box — color bleeding, reflections, refraction, and soft shadows</em>
+</p>
 
-## how it works
+---
 
-a scene file describes meshes, quadrics, materials, lights and a camera. the loader turns all of it into matrices. vertices are columns of a 4xN matrix and every object and the camera gets a 4x4 transform.
+## Features
 
-the camera starts from a look direction and a rough up vector. gram-schmidt turns those into an orthonormal right, up, forward frame, and thats also where the orthogonality checks come in (QtQ = I, det = 1). the same construction runs at every surface hit to build a local frame around the normal, so bounce directions get sampled in that frame and rotated back to world space.
+- **Path tracing** with next-event estimation, Russian roulette, and OpenMP
+- **Materials** — diffuse, metal, glass, checker, emissive area lights
+- **Geometry** — triangle meshes (BVH), spheres, ellipsoids, planes, quads
+- **Linear-algebra stages** — Gram–Schmidt bases, projections, mesh rank checks, eigen PCA / quadrics, SVD denoising
+- **Config-driven pipeline** — resolution, spp, stages, exposure, and SVD rank from one JSON file
+- **Trace + Python viewer** — inspect matrices and validate stages against NumPy
 
-before rendering, mesh vertices go through a rank and degeneracy check to throw out flat or repeated triangles. pca on each mesh cluster gives an oriented bounding box and those feed the bvh. quadrics are stored as symmetric matrices and their eigen decomposition gives the axes used for ray intersection.
+## Quick start
 
-while rendering, every hit is basically a projection. reflection is a projection onto the normal, diffuse shading is the light direction projected onto the normal, shadow tests project onto the light direction, and the image plane is an orthogonal projection onto the camera frame.
+```bash
+# Build + render (reads config.json)
+./run.sh
 
-on the side theres a least squares module that recovers a camera or object pose from noisy 2d to 3d point pairs, so the camera can be set from measurements.
+# Or point at another config
+./run.sh config.ci.json   # fast / low-res smoke
+```
 
-the finished render is one matrix per colour channel. a truncated svd keeps the big singular values and drops the noisy tail, and then we compare that against a render that just used more samples for the same cost.
+Requirements: CMake, a C++17 compiler, OpenMP, Python 3.10+.
 
-## stages
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j"$(nproc)"
+ctest --test-dir build --output-on-failure
+```
 
-every linear algebra step is a stage with the same shape. takes inputs, returns outputs and checks, writes everything to the trace.
+Default quality knobs live in [`config.json`](config.json) (currently **1280×720**, **800 spp**). CI uses [`config.ci.json`](config.ci.json).
 
-| stage | linear algebra | what it does in the renderer |
-|---|---|---|
-| `transforms` | matrix representation, orthogonal matrices | object and camera transforms, QtQ and det checks, compared against scale and shear |
-| `basis` | gram-schmidt, orthonormal bases | camera frame, local frame at each hit for bounce sampling |
-| `projection` | orthogonal projection | reflection, shading, shadows, image plane |
-| `mesh_checks` | rank, independence, basis selection | drops degenerate triangles and redundant vertices |
-| `eigen` | eigenvalues, eigenvectors, symmetric diagonalization | pca bounding boxes, ellipsoid intersection |
-| `lsq_pose` | least squares | camera and object pose from noisy points |
-| `svd_denoise` | svd, low rank approximation | denoises the monte carlo output |
+## How it works
 
-## architecture
+A scene JSON describes meshes, quadrics, materials, lights, and a camera. The loader turns geometry into matrices (vertices as columns of a \(4 \times N\) matrix; every object and the camera gets a \(4 \times 4\) transform).
+
+| Stage | Linear algebra | Role in the renderer |
+| --- | --- | --- |
+| `transforms` | Orthogonal matrices | Object / camera transforms; \(Q^\top Q = I\), \(\det\) checks |
+| `basis` | Gram–Schmidt | Camera frame and local frames at each hit for bounce sampling |
+| `projection` | Orthogonal projection | Reflection, shading, shadows, image plane |
+| `mesh_checks` | Rank / independence | Drop degenerate triangles and redundant vertices |
+| `eigen` | Symmetric eigen | PCA bounding boxes, ellipsoid intersection |
+| `lsq_pose` | Least squares | Pose from noisy 2D↔3D correspondences |
+| `svd_denoise` | Truncated SVD | Low-rank denoising of the Monte Carlo image |
 
 ```mermaid
 flowchart TD
-    A["Scene file and meshes"] --> B["Loader"]
+    A["Scene file + meshes"] --> B["Loader"]
     B --> C["transforms"]
     C --> D["basis: camera frame"]
     L["lsq_pose"] --> D
     B --> E["mesh_checks"]
-    E --> F["eigen: PCA boxes and quadrics"]
+    E --> F["eigen: PCA boxes + quadrics"]
     F --> G["BVH"]
-    G --> H["Path tracing loop (OpenMP)"]
+    G --> H["Path tracing (OpenMP)"]
     D --> H
-    H <--> P["projection and basis at each hit"]
-    H --> I["Noisy HDR render"]
+    H <--> P["projection + basis per hit"]
+    H --> I["Noisy HDR"]
     I --> J["svd_denoise"]
     J --> K["Final image"]
 
@@ -66,25 +94,35 @@ flowchart TD
     T --> R["NumPy reference checks"]
 ```
 
-## the trace
+Light transport is Monte Carlo path tracing with area-light NEE and Russian roulette. The raw HDR is optionally cleaned with a truncated SVD per color channel.
 
-each stage writes a record with the stage name, item name, shape, data and a short note, plus any checks it ran like `QtQ_is_identity: true`. small matrices go in json, big arrays go in a binary file next to it. stages are deterministic for a given seed so the reference checks are repeatable.
-
-the viewer reads the trace and walks through the stages in order with matrices, plots and before/after images. the reference checks redo each stage in numpy and compare against whats in the trace.
-
-## where the code lives
+## Layout
 
 ```
-core/       renderer: rays, shapes, bvh, materials, path tracer, openmp
-stages/     one file per stage, eigen only, no renderer types
-trace/      trace writer (c++) and reader (python)
-viewer/     python: inspection, plots, comparisons
-prep/       python: mesh_checks and eigen preprocessing (see docs/prep.md)
-tests/      numpy reference for each stage
-scenes/     scene files and meshes
-docs/       one short note per stage: concept, purpose, outcome
+core/       rays, shapes, BVH, materials, path tracer, scene loader
+stages/     one Eigen-only module per linear-algebra stage
+trace/      C++ writer + Python reader
+viewer/     inspection, plots, comparisons
+prep/       mesh_checks + eigen preprocessing
+tests/      C++ + NumPy stage tests
+scenes/     scene JSON + meshes
+docs/       stage notes, math pipeline, gallery
 ```
 
-## conventions
+## Docs
 
-column vectors, right-handed coordinates, y up. doubles inside stages, floats in the render loop. stage names are `stage_<name>`, one file each. full list goes in `docs/CONVENTIONS.md`.
+| Doc | What it covers |
+| --- | --- |
+| [`docs/MATH_PIPELINE.md`](docs/MATH_PIPELINE.md) | End-to-end math walkthrough |
+| [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) | Coordinates, types, naming |
+| [`docs/TRACE_SPEC.md`](docs/TRACE_SPEC.md) | Trace schema |
+| [`docs/prep.md`](docs/prep.md) | Python prep pipeline |
+| [`docs/gallery/`](docs/gallery/) | Sample renders |
+
+## Conventions
+
+Column vectors, right-handed coordinates, Y-up. Doubles inside stages, floats in the render loop. Stage entry points are named `stage_<name>`. Full conventions: [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md).
+
+## License
+
+[GPL-3.0](LICENSE)
