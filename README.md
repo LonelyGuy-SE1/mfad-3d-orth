@@ -9,17 +9,9 @@
 
 A Monte Carlo path tracer built from linear algebra modules — orthonormal frames, projections, eigen decompositions, and SVD — wired into a config-driven C++ render pipeline with Python inspection and NumPy reference checks.
 
-<p align="center">
-  <img src="docs/gallery/final_demo.png" alt="Final demo — glass, metal, diffuse, caustics" width="90%"/>
-  <br/>
-  <em>Final demo — glass, metal, diffuse materials, softbox lighting, and caustics (1280×720 @ 800 spp)</em>
-</p>
+![Final demo — glass, metal, diffuse, caustics (1280×720 @ 800 spp)](docs/gallery/final_demo.png)
 
-<p align="center">
-  <img src="docs/gallery/cornell_box.png" alt="Cornell-style box with path-traced GI" width="90%"/>
-  <br/>
-  <em>Cornell-style box — color bleeding, reflections, refraction, and soft shadows</em>
-</p>
+![Cornell-style box — color bleeding, reflections, refraction, and soft shadows](docs/gallery/cornell_box.png)
 
 ---
 
