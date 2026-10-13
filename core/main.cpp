@@ -96,8 +96,8 @@ void apply_exposure(mfad::ImageBuffer& image, float exposure) {
 }
 
 // Stage 0: raw canvas — geometry and materials only, no shadows
-void render_raw_frame(const std::string& out_path, const mfad::Scene& scene, int width,
-                      int height, int spp, float exposure) {
+void render_raw_frame(const std::string& out_path, const mfad::Scene& scene, int width, int height,
+                      int spp, float exposure) {
     std::cout << "\n[Stage 0] Raw canvas (no shadows) -> " << out_path << std::endl;
     mfad::ImageBuffer raw_image(width, height);
     mfad::DirectLightingOptions dl_opts;
@@ -201,14 +201,15 @@ bool run_scene_pipeline(const PipelineConfig& cfg, const std::string& scene_file
     mfad::ImageBuffer pt_image(width, height);
     bool have_pathtraced = false;
     if (cfg.stage_path_traced) {
-        std::cout << "\n[Stage 2] Path tracing (" << cfg.path_spp << " spp, max "
-                  << cfg.max_bounces << " bounces) -> " << pathtraced_out << std::endl;
+        std::cout << "\n[Stage 2] Path tracing (" << cfg.path_spp << " spp, max " << cfg.max_bounces
+                  << " bounces) -> " << pathtraced_out << std::endl;
         mfad::PathTracerOptions pt_opts;
         pt_opts.use_sky_gradient = scene.use_sky_gradient;
         pt_opts.background_color = scene.background_color;
         pt_opts.max_bounces = cfg.max_bounces;
         pt_opts.min_rr_bounces = cfg.min_rr_bounces;
         pt_opts.sample_lights = true;
+        pt_opts.firefly_clamp = 5.0f;
         for (auto& quad : scene.area_lights) {
             pt_opts.area_lights.push_back(std::dynamic_pointer_cast<mfad::Quad>(quad));
         }

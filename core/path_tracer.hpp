@@ -18,6 +18,8 @@ struct PathTracerOptions {
     int min_rr_bounces = 3;
     float rr_survival_clamp_min = 0.05f;
     float rr_survival_clamp_max = 0.95f;
+    // Soft per-channel firefly clamp; <= 0 disables (required for emission unit tests).
+    float firefly_clamp = 0.0f;
     Eigen::Vector3f background_color = Eigen::Vector3f::Zero();
     bool use_sky_gradient = false;
     bool sample_lights = false;

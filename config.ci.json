@@ -1,0 +1,23 @@
+{
+  "scenes": [
+    "scenes/final_demo.json",
+    "scenes/cornell_box.json"
+  ],
+  "output_dir": "output",
+  "image": {
+    "width": 64,
+    "height": 36
+  },
+  "stages": {
+    "raw": true,
+    "direct": true,
+    "path_traced": true,
+    "denoise": true
+  },
+  "direct_spp": 4,
+  "path_spp": 8,
+  "max_bounces": 4,
+  "min_rr_bounces": 2,
+  "svd_rank": 20,
+  "exposure": 0.8
+}
