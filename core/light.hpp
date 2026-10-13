@@ -11,22 +11,14 @@ struct PointLight {
     Eigen::Vector3f position{0.0f, 0.0f, 0.0f};
     Eigen::Vector3f intensity{1.0f, 1.0f, 1.0f};
     float radius{0.0f};
+    // When true, used only by Stage 0/1 direct lighting (stand-in for an area light).
+    // Path tracing samples the real area light instead and must skip this to avoid double-counting.
+    bool direct_only{false};
 
     PointLight() = default;
-    PointLight(const Eigen::Vector3f& pos, const Eigen::Vector3f& inten, float rad = 0.0f)
-        : position(pos), intensity(inten), radius(rad) {}
-};
-
-/**
- * @brief Directional light source (distant light at infinity).
- */
-struct DirectionalLight {
-    Eigen::Vector3f direction{0.0f, -1.0f, 0.0f};  // Vector pointing in direction of propagation
-    Eigen::Vector3f intensity{1.0f, 1.0f, 1.0f};
-
-    DirectionalLight() = default;
-    DirectionalLight(const Eigen::Vector3f& dir, const Eigen::Vector3f& inten)
-        : direction(dir.normalized()), intensity(inten) {}
+    PointLight(const Eigen::Vector3f& pos, const Eigen::Vector3f& inten, float rad = 0.0f,
+               bool direct_only_flag = false)
+        : position(pos), intensity(inten), radius(rad), direct_only(direct_only_flag) {}
 };
 
 }  // namespace mfad

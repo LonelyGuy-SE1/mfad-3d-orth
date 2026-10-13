@@ -30,3 +30,7 @@ venv/
 trace_*.json
 *.png
 *.html
+output/
+
+# Large local mesh (keep on disk for demos; too big for git)
+scenes/meshes/buddha.obj

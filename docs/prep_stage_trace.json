@@ -1,0 +1,547 @@
+[
+  {
+    "stage": "mesh_checks",
+    "name": "cube/face_singular_values",
+    "shape": [
+      2,
+      12
+    ],
+    "data": [
+      [
+        1.6180339879994563,
+        1.6180339867852211,
+        1.6180339867852211,
+        1.6180339879994563,
+        1.6180339860347828,
+        1.6180339860347828,
+        1.6180339879994563,
+        1.6180339867852211,
+        1.6180339860347825,
+        1.6180339860347825,
+        1.6180339879994563,
+        1.6180339867852211
+      ],
+      [
+        0.6180339879994563,
+        0.6180339884632529,
+        0.6180339884632529,
+        0.6180339879994563,
+        0.6180339877128143,
+        0.6180339877128144,
+        0.6180339879994563,
+        0.6180339884632529,
+        0.6180339877128144,
+        0.6180339877128144,
+        0.6180339879994563,
+        0.6180339884632529
+      ]
+    ],
+    "note": "per face singular values of edge matrix [v1-v0, v2-v0]; rows sigma_max, sigma_min",
+    "checks": {}
+  },
+  {
+    "stage": "mesh_checks",
+    "name": "cube/face_rank",
+    "shape": [
+      12
+    ],
+    "data": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "note": "numerical rank of each triangle edge matrix (2 = valid)",
+    "checks": {}
+  },
+  {
+    "stage": "mesh_checks",
+    "name": "cube/drop_reason",
+    "shape": [
+      12
+    ],
+    "data": [
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    "note": "-1 kept, else index into bad_index,nonfinite_vertex,repeated_index,coincident_vertices,rank0_collapsed,rank1_collinear,duplicate_face",
+    "checks": {}
+  },
+  {
+    "stage": "mesh_checks",
+    "name": "cube/affine_singular_values",
+    "shape": [
+      3
+    ],
+    "data": [
+      1.4142135623730951,
+      1.41421356,
+      1.41421356
+    ],
+    "note": "singular values of centred vertex scatter; count above tol is the affine rank",
+    "checks": {}
+  },
+  {
+    "stage": "mesh_checks",
+    "name": "cube/basis_vertices",
+    "shape": [
+      3,
+      4
+    ],
+    "data": [
+      [
+        -0.70710678,
+        0.70710678,
+        0.70710678,
+        0.0
+      ],
+      [
+        -0.5,
+        0.5,
+        -0.5,
+        -0.5
+      ],
+      [
+        -1.2,
+        -1.2,
+        -1.2,
+        -0.4928932199999999
+      ]
+    ],
+    "note": "affinely independent vertices selected greedily (columns)",
+    "checks": {
+      "faces_in": 12,
+      "faces_out": 12,
+      "faces_dropped": 0,
+      "vertices_in": 8,
+      "vertices_out": 8,
+      "vertices_merged": 0,
+      "vertices_unreferenced": 0,
+      "dropped_bad_index": 0,
+      "dropped_nonfinite_vertex": 0,
+      "dropped_repeated_index": 0,
+      "dropped_coincident_vertices": 0,
+      "dropped_rank0_collapsed": 0,
+      "dropped_rank1_collinear": 0,
+      "dropped_duplicate_face": 0,
+      "all_kept_faces_rank2": true,
+      "normals_unit_error": 0.0,
+      "normals_are_unit": true,
+      "indices_in_range": true,
+      "affine_rank": 3,
+      "mesh_is_flat": false,
+      "rel_tol": 1e-08,
+      "weld_tol": 1e-09
+    }
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/whole/covariance",
+    "shape": [
+      3,
+      3
+    ],
+    "data": [
+      [
+        0.1388888884538437,
+        0.0,
+        1.0639637343129283e-17
+      ],
+      [
+        0.0,
+        0.13888888882673958,
+        1.2721305518958924e-17
+      ],
+      [
+        1.0639637343129283e-17,
+        1.2721305518958924e-17,
+        0.13888888845384395
+      ]
+    ],
+    "note": "3x3 covariance of the mesh cluster",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/whole/eigenvalues",
+    "shape": [
+      3
+    ],
+    "data": [
+      0.13888888882673955,
+      0.13888888845384392,
+      0.1388888884538437
+    ],
+    "note": "descending eigenvalues of covariance",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/whole/axes",
+    "shape": [
+      3,
+      3
+    ],
+    "data": [
+      [
+        0.0,
+        0.7071067811865476,
+        -0.7071067811865476
+      ],
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.7071067811865476,
+        0.7071067811865476
+      ]
+    ],
+    "note": "eigenvectors as columns, right handed (PCA frame)",
+    "checks": {
+      "QtQ_error": 2.220446049250313e-16,
+      "QtQ_is_identity": true,
+      "det": 0.9999999999999998,
+      "det_is_one": true,
+      "eig_residual": 1.9984014452195165e-16,
+      "eig_residual_ok": true,
+      "diag_reconstruction_error": 5.99520433565855e-16,
+      "diag_reconstruction_ok": true,
+      "box_frame": "face",
+      "box_frame_orthonormal": true,
+      "box_frame_det": 1.0,
+      "pca_volume": 1.9999999932878738,
+      "covariance_symmetric": true,
+      "eigenvalues_nonnegative": true,
+      "eigengap_min": 1.5987211561756132e-15,
+      "containment_violation": 0.0,
+      "all_points_inside": true,
+      "obb_volume": 0.999999996643937,
+      "aabb_volume": 1.9999999932878736,
+      "obb_over_aabb": 0.5000000000000001,
+      "n_points": 8,
+      "weighting": "area"
+    }
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/whole/box_axes",
+    "shape": [
+      3,
+      3
+    ],
+    "data": [
+      [
+        0.0,
+        0.7071067811865476,
+        -0.7071067811865476
+      ],
+      [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.7071067811865476,
+        0.7071067811865476
+      ]
+    ],
+    "note": "OBB rotation actually used (face), smallest volume candidate",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/whole/box",
+    "shape": [
+      2,
+      3
+    ],
+    "data": [
+      [
+        6.938893919432147e-18,
+        0.0,
+        -1.2
+      ],
+      [
+        0.5,
+        0.49999999916098425,
+        0.49999999916098425
+      ]
+    ],
+    "note": "rows: obb center, half extents along axes",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "cube/cluster_boxes",
+    "shape": [
+      1,
+      6
+    ],
+    "data": [
+      [
+        6.938893919432147e-18,
+        0.0,
+        -1.2,
+        0.5,
+        0.49999999916098425,
+        0.49999999916098425
+      ]
+    ],
+    "note": "per cluster obb: cx cy cz hx hy hz",
+    "checks": {
+      "n_clusters": 1,
+      "all_clusters_valid": true,
+      "faces_covered": 12
+    }
+  },
+  {
+    "stage": "eigen",
+    "name": "egg/Q",
+    "shape": [
+      4,
+      4
+    ],
+    "data": [
+      [
+        4.124149659863946,
+        -2.3319845056553765,
+        0.0,
+        4.536564625850341
+      ],
+      [
+        -2.3319845056553765,
+        6.816893424036283,
+        0.0,
+        -2.565182956220915
+      ],
+      [
+        0.0,
+        0.0,
+        8.163265306122451,
+        8.163265306122451
+      ],
+      [
+        4.536564625850341,
+        -2.565182956220915,
+        8.163265306122451,
+        12.153486394557827
+      ]
+    ],
+    "note": "homogeneous symmetric quadric matrix",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "egg/eigenvalues",
+    "shape": [
+      3
+    ],
+    "data": [
+      2.7777777777777777,
+      8.163265306122451,
+      8.163265306122451
+    ],
+    "note": "eigenvalues of upper 3x3 block",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "egg/axes",
+    "shape": [
+      3,
+      3
+    ],
+    "data": [
+      [
+        -0.8660254037844387,
+        -0.4999999999999999,
+        -0.0
+      ],
+      [
+        -0.4999999999999999,
+        0.8660254037844387,
+        -0.0
+      ],
+      [
+        -0.0,
+        0.0,
+        -1.0
+      ]
+    ],
+    "note": "principal axes as columns from symmetric diagonalization",
+    "checks": {
+      "QtQ_error": 1.487416814333745e-17,
+      "QtQ_is_identity": true,
+      "det": 1.0,
+      "det_is_one": true,
+      "eig_residual": 5.440092820663266e-17,
+      "eig_residual_ok": true,
+      "diag_reconstruction_error": 5.440092820663266e-17,
+      "diag_reconstruction_ok": true,
+      "input_symmetry_error": 4.440892098500626e-16,
+      "input_is_symmetric": true,
+      "rebuild_error": 1.1102230246251565e-16,
+      "rebuild_ok": true,
+      "axis_tips_on_surface": true,
+      "kind": "ellipsoid"
+    }
+  },
+  {
+    "stage": "eigen",
+    "name": "egg/center_radii",
+    "shape": [
+      2,
+      3
+    ],
+    "data": [
+      [
+        -1.1,
+        8.076872504148012e-17,
+        -1.0
+      ],
+      [
+        0.6,
+        0.35,
+        0.35
+      ]
+    ],
+    "note": "rows: center, semi axis lengths",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "ball/Q",
+    "shape": [
+      4,
+      4
+    ],
+    "data": [
+      [
+        4.0,
+        0.0,
+        0.0,
+        -4.4
+      ],
+      [
+        0.0,
+        4.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        4.0,
+        4.0
+      ],
+      [
+        -4.4,
+        0.0,
+        4.0,
+        7.84
+      ]
+    ],
+    "note": "homogeneous symmetric quadric matrix",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "ball/eigenvalues",
+    "shape": [
+      3
+    ],
+    "data": [
+      4.0,
+      4.0,
+      4.0
+    ],
+    "note": "eigenvalues of upper 3x3 block",
+    "checks": {}
+  },
+  {
+    "stage": "eigen",
+    "name": "ball/axes",
+    "shape": [
+      3,
+      3
+    ],
+    "data": [
+      [
+        -1.0,
+        0.0,
+        -0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        -0.0
+      ],
+      [
+        -0.0,
+        0.0,
+        -1.0
+      ]
+    ],
+    "note": "principal axes as columns from symmetric diagonalization",
+    "checks": {
+      "QtQ_error": 0.0,
+      "QtQ_is_identity": true,
+      "det": 1.0,
+      "det_is_one": true,
+      "eig_residual": 0.0,
+      "eig_residual_ok": true,
+      "diag_reconstruction_error": 0.0,
+      "diag_reconstruction_ok": true,
+      "input_symmetry_error": 0.0,
+      "input_is_symmetric": true,
+      "rebuild_error": 0.0,
+      "rebuild_ok": true,
+      "axis_tips_on_surface": true,
+      "kind": "sphere"
+    }
+  },
+  {
+    "stage": "eigen",
+    "name": "ball/center_radii",
+    "shape": [
+      2,
+      3
+    ],
+    "data": [
+      [
+        1.1,
+        -0.0,
+        -1.0
+      ],
+      [
+        0.5,
+        0.5,
+        0.5
+      ]
+    ],
+    "note": "rows: center, semi axis lengths",
+    "checks": {}
+  }
+]

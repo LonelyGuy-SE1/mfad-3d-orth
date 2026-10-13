@@ -74,8 +74,8 @@ Eigen::Vector3f shade_direct_ray(const Ray& ray, const Scene& scene,
     HitRecord rec;
     if (!scene.hittables.hit(ray, 0.001f, 1e8f, rec)) {
         if (options.use_sky_gradient) {
-            const Eigen::Vector3f sky_zenith(0.12f, 0.18f, 0.28f);
-            const Eigen::Vector3f sky_horizon(0.24f, 0.28f, 0.35f);
+            const Eigen::Vector3f sky_zenith(0.08f, 0.12f, 0.22f);
+            const Eigen::Vector3f sky_horizon(0.18f, 0.20f, 0.24f);
             const Eigen::Vector3f ground_nadir(0.08f, 0.08f, 0.10f);
 
             float dir_y = ray.direction.y();
