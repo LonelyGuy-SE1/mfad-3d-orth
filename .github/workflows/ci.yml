@@ -117,15 +117,15 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
       - name: Smoke Test Renderer Executable
-        run: ./build/path_tracer
+        run: ./build/path_tracer --config config.ci.json
 
       - name: Verify Generated Render Artifacts
         run: |
-          test -s gradient.png || (echo "gradient.png missing or empty" && exit 1)
-          test -s cornell_box.png || (echo "cornell_box.png missing or empty" && exit 1)
-          test -s final_demo_direct.png || (echo "final_demo_direct.png missing or empty" && exit 1)
-          test -s final_demo_pathtraced.png || (echo "final_demo_pathtraced.png missing or empty" && exit 1)
-          test -s final_demo_denoised.png || (echo "final_demo_denoised.png missing or empty" && exit 1)
+          test -s output/final_demo/01_raw.png || (echo "final_demo raw missing" && exit 1)
+          test -s output/final_demo/02_direct.png || (echo "final_demo direct missing" && exit 1)
+          test -s output/final_demo/03_pathtraced.png || (echo "final_demo pathtraced missing" && exit 1)
+          test -s output/final_demo/04_denoised.png || (echo "final_demo denoised missing" && exit 1)
+          test -s output/cornell_box/03_pathtraced.png || (echo "cornell_box pathtraced missing" && exit 1)
           echo "Render artifacts successfully generated!"
 
       - name: Upload Render Artifacts
@@ -134,11 +134,8 @@ jobs:
         with:
           name: rendered-images
           path: |
-            gradient.png
-            cornell_box.png
-            final_demo_direct.png
-            final_demo_pathtraced.png
-            final_demo_denoised.png
+            output/final_demo/*.png
+            output/cornell_box/*.png
           if-no-files-found: error
 
   python-tests:
