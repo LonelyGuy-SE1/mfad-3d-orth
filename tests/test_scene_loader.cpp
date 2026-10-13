@@ -90,11 +90,19 @@ void test_load_final_demo_scene() {
     std::cout << "[TEST] Loading " << path << "..." << std::endl;
     mfad::Scene scene = mfad::SceneLoader::load_from_json(path, 16.0 / 9.0);
 
-    TEST_ASSERT(scene.object_count() == 5);
-    TEST_ASSERT(scene.meshes.size() == 1);
+    // final_demo: buddha + cube meshes, 4 quadrics (glass/mirror/gold/ellipsoid)
+    TEST_ASSERT(scene.object_count() == 6);
+    TEST_ASSERT(scene.meshes.size() == 2);
     TEST_ASSERT(scene.quadrics.size() == 4);
-    TEST_ASSERT(scene.meshes[0].triangles.size() ==
-                12);  // Clean cube.obj has 6 quad faces = 12 tris
+    TEST_ASSERT(scene.area_lights.size() >= 1);
+    bool found_cube = false;
+    for (const auto& mesh : scene.meshes) {
+        if (mesh.name == "cube") {
+            TEST_ASSERT(mesh.triangles.size() == 12);  // cube.obj: 6 quads → 12 tris
+            found_cube = true;
+        }
+    }
+    TEST_ASSERT(found_cube);
 
     // Test ray-geometry intersection against loaded scene hittables
     // Ray towards sphere_right (sphere at [1.15, 0, -1])

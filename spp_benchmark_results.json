@@ -1,8 +1,0 @@
-[
-  {"spp": 32, "seconds": 1.20, "minutes": 0.02, "file": "pathtraced_32spp.png"},
-  {"spp": 128, "seconds": 5.23, "minutes": 0.09, "file": "pathtraced_128spp.png"},
-  {"spp": 512, "seconds": 19.62, "minutes": 0.33, "file": "pathtraced_512spp.png"},
-  {"spp": 2048, "seconds": 77.72, "minutes": 1.30, "file": "pathtraced_2048spp.png"},
-  {"spp": 8192, "seconds": 315.36, "minutes": 5.26, "file": "pathtraced_8192spp.png"},
-  {"spp": 32768, "seconds": 1314.56, "minutes": 21.91, "file": "pathtraced_32768spp.png"}
-]

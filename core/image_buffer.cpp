@@ -107,4 +107,26 @@ bool ImageBuffer::write_hdr(const std::string& filepath) const {
     return stbi_write_hdr(filepath.c_str(), width_, height_, 3, float_data.data()) != 0;
 }
 
+bool ImageBuffer::read_hdr(const std::string& filepath) {
+    int w = 0;
+    int h = 0;
+    int channels = 0;
+    float* data = stbi_loadf(filepath.c_str(), &w, &h, &channels, 3);
+    if (!data) {
+        return false;
+    }
+    width_ = w;
+    height_ = h;
+    pixels_.resize(static_cast<size_t>(w * h));
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            int idx = (y * w + x) * 3;
+            pixels_[static_cast<size_t>(y * w + x)] =
+                Eigen::Vector3f(data[idx + 0], data[idx + 1], data[idx + 2]);
+        }
+    }
+    stbi_image_free(data);
+    return true;
+}
+
 }  // namespace mfad
